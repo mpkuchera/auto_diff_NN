@@ -1,0 +1,19 @@
+# Template for configure to create makefile_include, which is included
+# by test/Makefile and benchmark/Makefile
+
+AR = ar
+CC = /opt/software/GCC/4.9/bin/gcc
+CFLAGS = -g -O2
+CPP = /opt/software/GCC/4.9/bin/gcc -E
+CPPFLAGS = -I/opt/software/ClusterStudio/2013sp1/composer_xe_2013_sp1.0.080/mkl/include/fftw -I/opt/software/ClusterStudio/2013sp1/composer_xe_2013_sp1.0.080/mkl/include -I/opt/software/boost/1.58.0--GCC-4.9/include -I/opt/software/GCC/4.9/include -I/opt/software/cudatoolkit/7.0/include -I/opt/software/Python/2.7.2--GCC-4.4.5/include
+CXX = /opt/software/GCC/4.9/bin/g++
+CXXCPP = /opt/software/GCC/4.9/bin/g++ -E
+CXXFLAGS = -g -O3 -fopenmp -std=c++11
+DEFS = -DHAVE_CONFIG_H
+LD = /usr/bin/ld -m elf_x86_64
+LDFLAGS =  -fopenmp
+LIBOBJS = 
+LIBS =  -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -lpthread 
+SHELL = /bin/sh
+LIBTOOL = $(SHELL) $(top_builddir)/libtool
+USE_GSL = no
