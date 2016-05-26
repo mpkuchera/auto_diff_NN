@@ -12,8 +12,10 @@
 
 #include <cmath>
 #include <random>
-#include "HMC_base.h"
+#include "BNN.h"
 #include "algorithm.h"
+
+#include "define_type.h"
 using adept::adouble;
 
 // A simple demonstration algorithm used in the Adept paper. Note that
@@ -68,16 +70,36 @@ adouble neural_net(const adouble q[]) {
   std::cout << d  << "\n";
   return d;
 }
+
+HMC_type BNN::U(std::vector<HMC_type> &q) {
+  int np = getNP();
+  std::cout << "np = " << np << std::endl;
+
+  //std::cout << "adept_type = " << typeid(adept_type).name() << std::endl; 
+  //std::cout << "float = " << typeid(float).name() << std::endl; 
+  //std::cout << "double = " << typeid(double).name() << std::endl; 
+
+  stack.new_recording();
+
+  std::vector<adept_type> a_q(np);
+  //std::cout << "a_q allocated\n";
+  for(int i=0;i<np;i++) {a_q[i] = q[i];}
+
+  std::cout << "a_q filled,\n";
+  return 1.0;
+}
 //adouble HMC_base::U(const adouble q[]) { 
-adouble HMC_base::U(std::vector<adouble> &q) {
+
+
+adouble BNN::U(std::vector<adouble> &q) {
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_real_distribution<> dis(1, 2);
-  int N = 1;
-  int I = 2;
-  int H = 4;
+  //int N = 1;
+  // int I = 2;
+  //int H = 4;
 
-  int np = 17;
+  //int np = 17;
   adouble w[N] = {1.0};
 
   adouble x[N*2];
@@ -107,4 +129,12 @@ adouble HMC_base::U(std::vector<adouble> &q) {
   }
   std::cout << d  << "\n";
   return d;
+}
+
+ std::vector<HMC_type> BNN::delU(std::vector<HMC_type> &q) {
+
+ int np = getNP();
+ std::vector<HMC_type> a_q(np,0.0);
+
+ return a_q;
 }

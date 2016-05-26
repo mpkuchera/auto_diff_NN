@@ -165,13 +165,13 @@ main(int argc, char** argv)
   std::cout << "Result of forward algorithm:\n";
   // std::cout << "  y = " << y.value() << "\n";
    std::cout << "  f = " << f.value() << "\n";
-  std::cout << "Comparison of gradients:\n";
+  //std::cout << "Comparison of gradients:\n";
   //std::cout << "  dy_dx0[numerical] = " << dy_dx0 << "\n";
   //std::cout << "  dy_dx0[adjoint]   = " << x0_ad  << "\n";
-  std::cout << "  dy_dx0[jacobian]  = " << jac[0] << "\n";
+   // std::cout << "  dy_dx0[jacobian]  = " << jac[0] << "\n";
   //std::cout << "  dy_dx1[numerical] = " << dy_dx1 << "\n";
   //std::cout << "  dy_dx1[adjoint]   = " << x1_ad  << "\n";
-  std::cout << "  dy_dx1[jacobian]  = " << jac[1] << "\n\n\n";
+  //std::cout << "  dy_dx1[jacobian]  = " << jac[1] << "\n\n\n";
 
   for(int i=0;i<np;i++){
     std::cout << "q[" << i << "] = " << q[i] << "  df_dq[" << i << "][jacobian]  = " << jac[i] << "\t adjoint = " << q_ad[i] << "\n";

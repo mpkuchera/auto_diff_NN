@@ -13,7 +13,7 @@
 #include <fstream>
 #include "define_type.h"
 //#include "TRandom3.h"
-#include "adept.h" 
+//#include "adept.h" 
 
 using adept::adouble;
 
@@ -42,10 +42,11 @@ class HMC_base {
   virtual ~HMC_base(){};
   std::ofstream of; //!< output file
   int getNP(); //!< getter for NP variable in derived classes
-  inline std::vector<HMC_type> it(std::vector<HMC_type> &); //!< one HMC iteration 
+  inline std::vector<HMC_type> it(std::vector<HMC_type>&); //!< one HMC iteration 
   void run();
-  //HMC_type U(std::vector<HMC_type>&); //!< calculate U 
-  adouble U(std::vector<adouble>&);
-  std::vector<HMC_type> delU(std::vector<HMC_type>&); //!< calculate dU */
+  virtual HMC_type U(std::vector<HMC_type>&) = 0; //!< calculate U 
+  virtual adouble U(std::vector<adouble>&) = 0; 
+
+  virtual std::vector<HMC_type> delU(std::vector<HMC_type>&) = 0; //!< calculate dU */
 };
 #endif
