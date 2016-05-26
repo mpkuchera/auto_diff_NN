@@ -84,14 +84,14 @@ HMC_type BNN::U(std::vector<HMC_type> &q) {
   std::vector<adept_type> a_q(np);
   //std::cout << "a_q allocated\n";
   for(int i=0;i<np;i++) {a_q[i] = q[i];}
-
   std::cout << "a_q filled,\n";
-  return 1.0;
+  return value(ad_U(a_q));
+  //return 1.0;
 }
 //adouble HMC_base::U(const adouble q[]) { 
 
 
-adouble BNN::U(std::vector<adouble> &q) {
+adept_type BNN::ad_U(std::vector<adept_type> &q) {
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_real_distribution<> dis(1, 2);
@@ -99,7 +99,7 @@ adouble BNN::U(std::vector<adouble> &q) {
   // int I = 2;
   //int H = 4;
 
-  //int np = 17;
+  int np = getNP();
   adouble w[N] = {1.0};
 
   adouble x[N*2];

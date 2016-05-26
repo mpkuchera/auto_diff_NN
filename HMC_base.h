@@ -45,7 +45,7 @@ class HMC_base {
   inline std::vector<HMC_type> it(std::vector<HMC_type>&); //!< one HMC iteration 
   void run();
   virtual HMC_type U(std::vector<HMC_type>&) = 0; //!< calculate U 
-  virtual adouble U(std::vector<adouble>&) = 0; 
+  //virtual adouble U(std::vector<adouble>&) = 0; 
 
   virtual std::vector<HMC_type> delU(std::vector<HMC_type>&) = 0; //!< calculate dU */
 };
