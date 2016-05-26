@@ -20,14 +20,11 @@ LIBTOOL = $(ADEPT_DIR)/libtool
 # ADEPT_FLAGS = -DADEPT_STACK_THREAD_UNSAFE
 
 # The objects to create
-OBJECTS = algorithm.o algorithm_noad.o test_checkpoint.o \
-	test_adept.o test_adept_with_and_without_ad.o \
-	test_radiances.o simulate_radiances.o test_thread_safe.o \
-	test_no_lib.o test_misc.o test_arrays.o test_array_speed.o \
-	test_radiances_array.o test_fixed_arrays.o
-GSL_OBJECTS = test_gsl_interface.o state.o rosenbrock_banana_function.o
+OBJECTS = HMC_base.o algorithm.o \
+	test_adept.o BNN.o
+#GSL_OBJECTS = test_gsl_interface.o state.o rosenbrock_banana_function.o
 
-GSL_LIBS = -lgsl
+#GSL_LIBS = -lgsl
 
 COMPILE_FLAGS = $(CXXFLAGS) $(CPPFLAGS) $(ADEPT_FLAGS) -I$(ADEPT_DIR)/include
 
@@ -43,7 +40,7 @@ LIBADEPT = $(ADEPT_DIR)/adept/.libs/libadept.a
 
 MYLIBS = $(LIBS)
 
-PROGRAMS = test_adept BNN_adept
+PROGRAMS = test_adept BNN_adept HMC_BNN_adept
 
 all:
 	@echo "********************************************************"
@@ -61,46 +58,10 @@ test_adept: algorithm.o test_adept.o $(LIBADEPT)
 BNN_adept: algorithm.o BNN_adept.o $(LIBADEPT)
 	$(CXXLINK) algorithm.o BNN_adept.o $(MYLIBS)
 
+# Test program 3
+HMC_BNN_adept:  HMC_base.o algorithm.o BNN.o HMC_BNN_adept.o $(LIBADEPT)
+	$(CXXLINK)  HMC_base.o algorithm.o  BNN.o HMC_BNN_adept.o $(MYLIBS)
 
-
-# Test program 5
-test_misc: test_misc.o algorithm.o $(LIBADEPT)
-	$(CXXLINK) test_misc.o algorithm.o $(MYLIBS)
-
-# Test program 6
-test_checkpoint: test_checkpoint.o $(LIBADEPT)
-	$(CXXLINK) test_checkpoint.o $(MYLIBS)
-
-# Test program 7
-test_thread_safe: test_thread_safe.o $(LIBADEPT)
-	$(CXXLINK) test_thread_safe.o $(MYLIBS)
-
-# Test program 8 (note that it is not linked against the Adept library)
-test_no_lib: test_no_lib.o algorithm.o
-	$(CXXLINK) test_no_lib.o algorithm.o
-
-# Test program 9
-test_arrays: test_arrays.o $(LIBADEPT)
-	$(CXXLINK) test_arrays.o $(MYLIBS)
-
-# Test program 10
-test_array_speed: test_array_speed.o $(LIBADEPT)
-	$(CXXLINK) test_array_speed.o $(MYLIBS)
-
-# Test program 11
-test_radiances_array: simulate_radiances.o test_radiances_array.o $(LIBADEPT)
-	$(CXXLINK) simulate_radiances.o test_radiances_array.o $(MYLIBS)
-
-# Test program 12
-test_fixed_arrays: test_fixed_arrays.o $(LIBADEPT)
-	$(CXXLINK) test_fixed_arrays.o $(MYLIBS)
-
-
-# The no-automatic-differentiation version of the algorithm: uses the
-# -DADEPT_NO_AUTOMATIC_DIFFERENTIATION to produce a version of the
-# algorithm that takes double rather than adouble arguments
-algorithm_noad.o: algorithm.cpp *.h ${ADEPT_DIR}/include/adept.h
-	$(CXX) $(COMPILE_FLAGS) $(INCLUDES) -c algorithm.cpp -DADEPT_NO_AUTOMATIC_DIFFERENTIATION -o $@
 
 # All other object files created by compiling the corresponding source
 # file without this flag
