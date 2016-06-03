@@ -22,15 +22,7 @@ using adept::adouble;
 // this algorithm can be compiled with
 // -DADEPT_NO_AUTOMATIC_DIFFERENTIATION to create a version that takes
 // double arguments and returns a double result.
-adouble algorithm(const adouble x[2]) {
-  adouble y = 4.0;
-  adouble s = 2.0*x[0] + 3.0*x[1]*x[1];
-  double b=3.0;
-  y = s + b;
-  y *= sin(s);
-  return y;
-}
- 
+
 adouble neural_net(const adouble q[]) { 
   std::random_device rd;
   std::mt19937 gen(rd());
@@ -71,27 +63,28 @@ adouble neural_net(const adouble q[]) {
   return d;
 }
 
-HMC_type BNN::U(std::vector<HMC_type> &q) {
+HMC_type BNN::U(const std::vector<HMC_type> &q) {
+  adept::Stack stack;
   int np = getNP();
-  std::cout << "np = " << np << std::endl;
+  //std::cout << "np = " << np << std::endl;
 
   //std::cout << "adept_type = " << typeid(adept_type).name() << std::endl; 
   //std::cout << "float = " << typeid(float).name() << std::endl; 
   //std::cout << "double = " << typeid(double).name() << std::endl; 
 
   stack.new_recording();
-
-  std::vector<adept_type> a_q(np);
+  adept_type a_q[np];
+  //std::vector<adept_type> a_q(np);
   //std::cout << "a_q allocated\n";
   for(int i=0;i<np;i++) {a_q[i] = q[i];}
-  std::cout << "a_q filled,\n";
+  //std::cout << "a_q filled,\n";
   return value(ad_U(a_q));
   //return 1.0;
 }
-//adouble HMC_base::U(const adouble q[]) { 
+//adept_type HMC_base::U(const adept_type q[]) { 
 
 
-adept_type BNN::ad_U(std::vector<adept_type> &q) {
+adept_type BNN::ad_U(const adept_type q[]) {
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_real_distribution<> dis(1, 2);
@@ -100,41 +93,77 @@ adept_type BNN::ad_U(std::vector<adept_type> &q) {
   //int H = 4;
 
   int np = getNP();
-  adouble w[N] = {1.0};
+  adept_type ww[N] = {1.0};
 
-  adouble x[N*2];
-  adouble t[N];
+  adept_type xx[N*2];
+  adept_type tt[N];
   for(int i=0;i<N;i++){
     for(int j=0;j<I;j++){
-    x[i*I+j] = dis(gen);
+      //x[i*I+j] = dis(gen);
+      xx[i*I+j] = 1.0;
     }
-    t[i] = sin(x[i*I+0]) *cos(x[i*I+1]);
-    std::cout << "t[" << i << "] = " << t[i] << "\n";
+    tt[i] = sin(xx[i*I+0]) *cos(xx[i*I+1]);
+    //std::cout << "t[" << i << "] = " << t[i] << "\n";
   }
 
-  adouble d = 0.0;
+  adept_type d = 0.0;
   for(int th=0; th<N;th++){
-    adouble f = q[0];
+    adept_type f = q[0];
     for(int j=0;j<H;j++){
-      adouble inSum = 0.0;
+      adept_type inSum = 0.0;
       for(int i=0;i<I;i++){
-	inSum += q[2*H+1+I*j+i]*x[th*I+i];
+	inSum += q[2*H+1+I*j+i]*xx[th*I+i];
       }
       // f+=q[j+1]*(exp(2*(q[H+1+j]+inSum))-1)/(exp(2*(q[H+1+j]+inSum))+1);
       f+=q[j+1]*tanh(q[H+1+j]+inSum);
     }
-    adouble res = t[th]-f;
-    std::cout << res  << "\n";
-    d += w[th]*(t[th]-f)*(t[th]-f);
+    adept_type res = tt[th]-f;
+    //std::cout << res  << "\n";
+    d += ww[th]*(tt[th]-f)*(tt[th]-f);
   }
-  std::cout << d  << "\n";
+  std::cout << "ad_U = " << d  << "\n";
   return d;
 }
 
- std::vector<HMC_type> BNN::delU(std::vector<HMC_type> &q) {
+ std::vector<HMC_type> BNN::delU(const std::vector<HMC_type> &q) {
+   adept::Stack stack;
+   std::cout << "in delU(q)\n";
+   int np = getNP();    
+   HMC_type del_q[np] = {0};
+   adept_type a_q[np] = {1.0};
+   for(int i=0;i<np;i++){a_q[i] = q[i];}
+   adept_type u;
+   stack.new_recording();
+   //adept::set_values(a_q,np,q);
+   u = ad_U(a_q);
 
- int np = getNP();
- std::vector<HMC_type> a_q(np,0.0);
+   //std::cout << "Stack status after algorithm run but adjoint not yet computed:\n"
+   //	    << stack;
+   std::cout << "u = " << u.value() << "\n";
+   u.set_gradient(1.0);
+   stack.compute_adjoint();  
+   //std::cout << "List of derivative statements:\n";
+   //stack.print_statements();
+   //std::cout << "\n";
 
- return a_q;
-}
+   //std::cout << "Initial list of gradients:\n";
+   //stack.print_gradients();
+   //std::cout << "\n";
+  stack.reverse();
+  // Some more diagnostic information
+  //std::cout << "Final list of gradients:\n";
+  // stack.print_gradients();
+  //std::cout << "\n";
+  stack.independent(a_q,np);
+  stack.dependent(u);
+  HMC_type jac[np];
+  stack.jacobian(jac);
+  //HMC_type test = 0;
+   //adept::get_gradients(a_q,np,del_q);
+  // a_q[0].get_gradient(test);
+   //for(int i=0;i<np;i++){a_q[i].get_gradient();}
+   //del_q[0] = a_q[0].get_gradient();
+   std::vector<HMC_type> dummy(np,0);
+   for(int i=0;i<np;i++){dummy[i] = jac[i];std::cout << jac[i]<< std::endl;};
+   return dummy;
+ }
