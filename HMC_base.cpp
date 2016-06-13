@@ -14,7 +14,7 @@
 
 //NOTE: can not inline this function
 inline std::vector<HMC_type> HMC_base::it(std::vector<HMC_type> &q0) {
-  std::cout << "begin it()\n";
+  //std::cout << "begin it()\n";
   std::vector<HMC_type> eps(NP);
   /*  std::vector<adept::adouble> qq(NP); 
   for(int i=0;i<NP;i++){
@@ -22,12 +22,12 @@ inline std::vector<HMC_type> HMC_base::it(std::vector<HMC_type> &q0) {
     } */
   //eps = calc_step(q0); /*!< Uq0 calculated in this function */
   Uq0 = U(q0);
-  std::cout << "U called.\n";
+  //std::cout << "U called.\n";
    //std::cout << "eps = " <<  eps[0] << std::endl;
   
 //!!!!!!!!!!!!!!!
    for(int i=0;i<NP;i++){ 
-     eps[i] = 0.000002;
+     eps[i] = 0.00002;
    }
    // std::default_random_engine generator;
    //std::normal_distribution<double> distribution;
@@ -38,36 +38,28 @@ inline std::vector<HMC_type> HMC_base::it(std::vector<HMC_type> &q0) {
   q = q0;
   //std::vector<HMC_type> p(q.size());
   //std::cout << "NP = " << NP << std::endl;
-  std::cout << "HMC_type = " << typeid(q[0]).name() << std::endl; 
-  std::cout << "float = " << typeid(float).name() << std::endl; 
-  std::cout << "double = " << typeid(double).name() << std::endl; 
+
   
   assert((int)p.size() == NP);
   std::default_random_engine generator;
   std::normal_distribution<float> dist;
   for(int i=0;i<NP;i++) {
-    // p[i] = rand_p.Gaus();
     p[i] = dist(generator);
-    //p[i] = rand_normal(0,1);
-   
-    //p[i] = distribution(generator);
-     //p[i] = 0.5;
-    //std:: cout << p[i] << "\t";
   }
-  //std::cout << std::endl;
 
   std::vector<HMC_type> p0 = p;
-  std::cout << "before dU call.\n" ;
+  //std::cout << "before dU call.\n" ;
   // 1/2 step in momentum
-  dU = delU(q);  std::cout << "after dU call.\n" ;
+  dU = delU(q);  //std::cout << "after dU call.\n" ;
  
 
 
- // std::cout << "in it() dU = ";
-  //for(int j=0;j<(int)dU.size();j++){
-  //std::cout << dU[j] << "\t";
-  //}
-  //std::cout << std::endl;
+  //std::cout << "in it() dU = ";
+  /*
+  for(int j=0;j<(int)dU.size();j++){
+    std::cout << dU[j] << "\t";
+  }
+  std::cout << std::endl;*/
   // std::cout << "np = " << NP << std::endl;
 
   for(int i=0; i<NP;i++){
@@ -90,18 +82,18 @@ inline std::vector<HMC_type> HMC_base::it(std::vector<HMC_type> &q0) {
       // std::cout << "i = " << i << "  q[" << j << "] = " << q[j] << std::endl;
     }
     dU = delU(q); 
-    
+     for(int j=0;j<NP;j++) {
+	if(dU[j] != dU[j]){
+	  dU[j] = 1000000;
+	  std::cout << "diverging dU[" << j << "] = " << dU[j] << std::endl;
+	  //assert(0);
+	}
+     }
     // std::cout << "dU[0] = " << dU[0] << std::endl;
     // 1 step in momentum, except at the end
     if(i != (L-1)){
       for(int j=0;j<NP;j++) {
-	if(dU[j] != dU[j]){
-      dU[j] = 1000000;
-      std::cout << "dU[" << j << "] = " << dU[j] << std::endl;
-      //assert(0);
-	}
 	p[j] = p[j] - eps[j]*dU[j];
-
       }
     }
   }
@@ -112,7 +104,7 @@ inline std::vector<HMC_type> HMC_base::it(std::vector<HMC_type> &q0) {
       dU[i] = 1000000;
       std::cout << "dU[" << i << "] = " << dU[i] << std::endl;
       //assert(0);
-	}
+    }
     p[i] = p[i] - 0.5*eps[i]*dU[i];
     if(p[i] != p[i]){
       assert(0);
@@ -129,6 +121,7 @@ inline std::vector<HMC_type> HMC_base::it(std::vector<HMC_type> &q0) {
 
   // Calculate original and new U & K
   HMC_type Uc = U(q0);
+  //std::cout << "Uc = " << Uc << std::endl;
   Uc = std::min(Uc,(HMC_type)3000000);
   HMC_type Un = U(q);
 
@@ -160,12 +153,12 @@ inline std::vector<HMC_type> HMC_base::it(std::vector<HMC_type> &q0) {
   } else
    */ 
    if(rndm < f) {
-
-    return q;   //accept
-  } else {
+     
+     return q;   //accept
+   } else {
      // std::cout << "condition 3" << std::endl;
-    return q0; //reject
-  }
+     return q0; //reject
+   }
 };
 int HMC_base::getNP() {
   return NP;
@@ -181,12 +174,12 @@ void HMC_base::run(){
   for(int i=0;i<NP; i++){  
     q[i] = distribution(generator);
   }
-  std::cout << "q filled.\n";
+  //std::cout << "q filled.\n";
   int accept = 0;
   float acc_ratio = 0.0;
   for(int i=0; i<nIter; i++){
     q0 = q;
-    std::cout << "q0 set.\n";
+    //std::cout << "q0 set.\n";
     q = it(q0);
     if(q != q0) {
       accept++; 

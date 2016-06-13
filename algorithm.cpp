@@ -121,13 +121,13 @@ adept_type BNN::ad_U(const adept_type q[]) {
     //std::cout << res  << "\n";
     d += ww[th]*(tt[th]-f)*(tt[th]-f);
   }
-  std::cout << "ad_U = " << d  << "\n";
+  //std::cout << "ad_U = " << d  << "\n";
   return d;
 }
 
  std::vector<HMC_type> BNN::delU(const std::vector<HMC_type> &q) {
    adept::Stack stack;
-   std::cout << "in delU(q)\n";
+   //std::cout << "in delU(q)\n";
    int np = getNP();    
    HMC_type del_q[np] = {0};
    adept_type a_q[np] = {1.0};
@@ -139,7 +139,7 @@ adept_type BNN::ad_U(const adept_type q[]) {
 
    //std::cout << "Stack status after algorithm run but adjoint not yet computed:\n"
    //	    << stack;
-   std::cout << "u = " << u.value() << "\n";
+   //std::cout << "u = " << u.value() << "\n";
    u.set_gradient(1.0);
    stack.compute_adjoint();  
    //std::cout << "List of derivative statements:\n";
@@ -164,6 +164,8 @@ adept_type BNN::ad_U(const adept_type q[]) {
    //for(int i=0;i<np;i++){a_q[i].get_gradient();}
    //del_q[0] = a_q[0].get_gradient();
    std::vector<HMC_type> dummy(np,0);
-   for(int i=0;i<np;i++){dummy[i] = jac[i];std::cout << jac[i]<< std::endl;};
+   for(int i=0;i<np;i++){dummy[i] = jac[i];
+     //  std::cout << jac[i]<< std::endl;
+   };
    return dummy;
  }
