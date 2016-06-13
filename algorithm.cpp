@@ -100,9 +100,10 @@ adept_type BNN::ad_U(const adept_type q[]) {
   for(int i=0;i<N;i++){
     for(int j=0;j<I;j++){
       //x[i*I+j] = dis(gen);
-      xx[i*I+j] = 1.0;
+      xx[i*I+j] = v_x[i*I+j];
     }
-    tt[i] = sin(xx[i*I+0]) *cos(xx[i*I+1]);
+    //tt[i] = sin(xx[i*I+0]) *cos(xx[i*I+1]);
+    tt[i] = v_t[i];
     //std::cout << "t[" << i << "] = " << t[i] << "\n";
   }
 
@@ -119,10 +120,26 @@ adept_type BNN::ad_U(const adept_type q[]) {
     }
     adept_type res = tt[th]-f;
     //std::cout << res  << "\n";
-    d += ww[th]*(tt[th]-f)*(tt[th]-f);
+    d += ww[th]*(res)*(res);
   }
+  
+  adept_type prior = 0.0;
+  prior += 0.5*q[0]*q[0]/(sigb*sigb);
+ for (int v=1; v<H+1;v++){
+    // std::cout << "v = " << v << std::endl;
+    prior +=  0.5*q[v]*q[v]/(sigv*sigv);
+  }
+  for(int a=H+1;a<2*H+1;a++){
+    prior +=  0.5*q[a]*q[a]/(siga*siga);
+    //std::cout << "a = " << a << std::endl;
+  }
+  for(int u=2*H+1; u<H*(2+I)+1; u++){
+    prior +=  0.5*q[u]*q[u]/(sigu*sigu);
+    //std::cout << "u = " << u << std::endl;
+  }
+
   //std::cout << "ad_U = " << d  << "\n";
-  return d;
+  return d+prior;
 }
 
  std::vector<HMC_type> BNN::delU(const std::vector<HMC_type> &q) {
