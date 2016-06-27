@@ -40,7 +40,7 @@ LIBADEPT = $(ADEPT_DIR)/adept/.libs/libadept.a
 
 MYLIBS = $(LIBS)
 
-PROGRAMS = test_adept BNN_adept HMC_BNN_adept
+PROGRAMS = test_adept BNN_adept HMC_BNN_adept pMSSM_test
 
 all:
 	@echo "********************************************************"
@@ -62,7 +62,8 @@ BNN_adept: algorithm.o BNN_adept.o $(LIBADEPT)
 HMC_BNN_adept:  HMC_base.o algorithm.o BNN.o HMC_BNN_adept.o $(LIBADEPT)
 	$(CXXLINK)  HMC_base.o algorithm.o  BNN.o HMC_BNN_adept.o $(MYLIBS)
 
-
+pMSSM_test:  HMC_base.o algorithm.o BNN.o pMSSM_test.o $(LIBADEPT)
+	$(CXXLINK)  HMC_base.o algorithm.o  BNN.o pMSSM_test.o $(MYLIBS)
 # All other object files created by compiling the corresponding source
 # file without this flag
 %.o: %.cpp *.h ${ADEPT_DIR}/include/adept.h
